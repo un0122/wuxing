@@ -46,6 +46,13 @@ export async function onRequest(context) {
     }
 
     // 向真实的 Dify API 发送请求
+    const difyRequestBody = {
+      "inputs": requestBody.inputs || requestBody,
+      "query": requestBody.query || "生成报告",
+      "response_mode": requestBody.response_mode || "blocking",
+      "user": requestBody.user || "web-user"
+    };
+    
     const response = await fetch(difyUrl, {
       method: "POST",
       headers: {
@@ -53,12 +60,7 @@ export async function onRequest(context) {
         // 在此处携带鉴权头，防止前端泄露
         "Authorization": `Bearer ${apiKey}`
       },
-      body: JSON.stringify({
-        "inputs": requestBody.inputs,
-        "query": requestBody.query || "生成报告",
-        "response_mode": requestBody.response_mode || "blocking",
-        "user": requestBody.user || "web-user"
-      })
+      body: JSON.stringify(difyRequestBody)
     });
 
     // 将 Dify 返回的结果透传给前端
