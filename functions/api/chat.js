@@ -76,20 +76,22 @@ export async function onRequest(context) {
     });
 
     // 如果 Dify 返回的不是 200，说明参数依然有问题，我们把 Dify 的原始报错信息透传出来
-    if (!response.ok) {
-        const errorText = await response.text();
-        return new Response(JSON.stringify({ 
-            error: `Dify API Error: ${response.status}`, 
-            details: errorText,
-            sentBody: difyRequestBody // 把我们发给 Dify 的内容也打印出来，方便调试
-        }), {
-            status: response.status,
-            headers: {
-              "Content-Type": "application/json",
-              ...corsHeaders
+if (!response.ok) {
+                // 尝试解析后端返回的详细错误信息
+                let errorDetails = '';
+                try {
+                    const errorData = await response.json();
+                    console.error("【后端详细报错】:", errorData);
+                    // 提取 Dify 返回的具体原因
+                    if (errorData.details) {
+                        const difyError = JSON.parse(errorData.details);
+                        errorDetails = difyError.message || errorData.details;
+                    }
+                } catch (e) {
+                    errorDetails = '无法解析详细错误';
+                }
+                throw new Error(`API error: ${response.status}。\n原因: ${errorDetails}`);
             }
-        });
-    }
 
     // 将 Dify 返回的结果透传给前端
     const data = await response.json();
