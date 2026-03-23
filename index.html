@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>五行八字分析报告</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Apache ECharts -->
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
+    <!-- Marked.js -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        earth: {
+                            50: '#fcfaf8',
+                            100: '#f4f0e6', // 宣纸底色
+                            200: '#e8dfcc',
+                            300: '#d4c4b7', // 边框浅色
+                            400: '#b59c8a',
+                            500: '#947a66',
+                            600: '#8c4a3b', // theme color: 朱砂红
+                            700: '#733b2e',
+                            800: '#5c4d47',
+                            900: '#3b2e2a', // 深墨色
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Noto+Serif+SC:wght@400;700&display=swap');
+        
+        body {
+            background-color: #f4f0e6; /* 宣纸色 */
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" opacity="0.05"><filter id="noise"><feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="4" stitchTiles="stitch"/></filter><rect width="100%" height="100%" filter="url(%23noise)"/></svg>');
+            color: #3b2e2a; /* 深墨色 */
+            font-family: 'Noto Serif SC', serif; /* 宋体/衬线体更具古典感 */
+        }
+        
+        .font-cursive {
+            font-family: 'Ma Shan Zheng', cursive; /* 毛笔行书字体 */
+        }
+
+        .markdown-body h1, .markdown-body h2, .markdown-body h3 {
+            color: #8c4a3b; /* 朱砂红 */
+            margin-top: 1.5em;
+            margin-bottom: 0.5em;
+            font-weight: bold;
+            font-family: 'Noto Serif SC', serif;
+        }
+        .markdown-body h1 { font-size: 1.5rem; border-bottom: 1px solid #d4c4b7; padding-bottom: 0.3em; }
+        .markdown-body h2 { font-size: 1.25rem; }
+        .markdown-body h3 { font-size: 1.125rem; }
+        .markdown-body p { margin-bottom: 1em; line-height: 1.8; letter-spacing: 0.05em; }
+        .markdown-body ul { list-style-type: none; padding-left: 1.5em; margin-bottom: 1em; }
+        .markdown-body ul li::before { content: "•"; color: #8c4a3b; display: inline-block; width: 1em; margin-left: -1em; }
+        .markdown-body li { margin-bottom: 0.25em; }
+        .markdown-body strong { color: #8c4a3b; }
+        .markdown-body blockquote { 
+            border-left: 4px solid #8c4a3b; 
+            padding-left: 1em; 
+            color: #5c4d47; 
+            background-color: rgba(140, 74, 59, 0.05); 
+            margin: 1em 0; 
+            padding: 0.8em 1em; 
+            border-radius: 0 4px 4px 0; 
+            font-family: 'Noto Serif SC', serif;
+            font-style: italic;
+        }
+        
+        .markdown-body hr {
+            height: 1px;
+            background-color: #d4c4b7;
+            border: none;
+            margin: 2em 0;
+            position: relative;
+        }
+        .markdown-body hr::after {
+            content: '☯';
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #f4f0e6;
+            padding: 0 10px;
+            color: #8c4a3b;
+            font-size: 1.2em;
+        }
+        
+        /* 隐藏滚动条但保留滚动功能 */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;  /* IE and Edge */
+            scrollbar-width: none;  /* Firefox */
+        }
+        
+        /* 传统边框 */
+        .chinese-border {
+            border: 1px solid #d4c4b7;
+            padding: 4px;
+            position: relative;
+        }
+        .chinese-border::before {
+            content: '';
+            position: absolute;
+            top: 2px; left: 2px; right: 2px; bottom: 2px;
+            border: 1px solid #8c4a3b;
+            opacity: 0.3;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body class="min-h-screen py-10 px-4 sm:px-6 lg:px-8 font-sans">
+    <div class="max-w-3xl mx-auto bg-earth-50 rounded-none sm:rounded-lg shadow-2xl overflow-hidden chinese-border mt-4 mb-10">
+        <!-- Header -->
+        <div class="bg-earth-100 px-6 py-12 sm:p-14 text-center relative overflow-hidden border-b-2 border-earth-300">
+            <!-- 装饰性祥云背景 (纯SVG代码生成) -->
+            <div class="absolute top-0 left-0 w-full h-full opacity-20 pointer-events-none flex justify-between items-start">
+                <svg width="200" height="150" viewBox="0 0 200 150" fill="none" xmlns="http://www.w3.org/2000/svg" class="transform -scale-x-100">
+                    <path d="M50 80 C50 60 70 50 90 60 C100 40 130 40 140 60 C160 50 180 70 170 90 C190 100 180 130 150 120 C140 140 110 140 100 120 C80 140 50 130 60 110 C40 100 40 90 50 80 Z" stroke="#8c4a3b" stroke-width="2" fill="transparent"/>
+                    <path d="M70 90 C70 75 85 70 100 80 C110 65 130 65 135 80 C150 75 160 90 155 105 C170 110 160 130 140 125 C135 140 110 140 105 125 C90 140 70 130 75 115 C60 110 60 100 70 90 Z" stroke="#8c4a3b" stroke-width="1" fill="transparent"/>
+                </svg>
+                <svg width="200" height="150" viewBox="0 0 200 150" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M50 80 C50 60 70 50 90 60 C100 40 130 40 140 60 C160 50 180 70 170 90 C190 100 180 130 150 120 C140 140 110 140 100 120 C80 140 50 130 60 110 C40 100 40 90 50 80 Z" stroke="#8c4a3b" stroke-width="2" fill="transparent"/>
+                </svg>
+            </div>
+            
+            <!-- 传统印章 -->
+            <div class="absolute top-6 right-6 w-12 h-12 border-2 border-earth-600 rounded flex items-center justify-center transform rotate-12 opacity-80">
+                <span class="text-earth-600 font-cursive text-xl leading-none" style="writing-mode: vertical-rl;">天机</span>
+            </div>
+
+            <h1 class="text-4xl sm:text-5xl font-bold text-earth-900 tracking-widest relative z-10 font-cursive mb-4">五行八字分析</h1>
+            <div class="flex justify-center items-center space-x-4 relative z-10">
+                <div class="h-px w-16 bg-earth-600"></div>
+                <p class="text-lg text-earth-800 tracking-[0.2em] font-serif">知命理 · 调五行 · 顺运势</p>
+                <div class="h-px w-16 bg-earth-600"></div>
+            </div>
+        </div>
+
+        <!-- Content -->
+        <div class="px-6 py-10 sm:px-12">
+            <form id="baziForm" onsubmit="event.preventDefault(); generateReport();" class="mb-10 relative">
+                <!-- 装饰角 -->
+                <div class="absolute -top-4 -left-4 w-8 h-8 border-t-2 border-l-2 border-earth-400 opacity-50"></div>
+                <div class="absolute -bottom-4 -right-4 w-8 h-8 border-b-2 border-r-2 border-earth-400 opacity-50"></div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+                    <div>
+                        <label class="block text-sm font-bold text-earth-800 mb-2 tracking-widest">出生年份 <span class="text-earth-600">*</span></label>
+                        <input type="number" id="bir_year" required placeholder="如: 1990" class="w-full appearance-none bg-transparent border-b-2 border-earth-300 px-2 py-2 text-earth-900 focus:outline-none focus:border-earth-600 transition-colors text-center font-serif placeholder-earth-400">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-earth-800 mb-2 tracking-widest">出生月份 <span class="text-earth-600">*</span></label>
+                        <input type="number" id="bir_month" required min="1" max="12" placeholder="1-12" class="w-full appearance-none bg-transparent border-b-2 border-earth-300 px-2 py-2 text-earth-900 focus:outline-none focus:border-earth-600 transition-colors text-center font-serif placeholder-earth-400">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-earth-800 mb-2 tracking-widest">出生日期 <span class="text-earth-600">*</span></label>
+                        <input type="number" id="bir_day" required min="1" max="31" placeholder="1-31" class="w-full appearance-none bg-transparent border-b-2 border-earth-300 px-2 py-2 text-earth-900 focus:outline-none focus:border-earth-600 transition-colors text-center font-serif placeholder-earth-400">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-earth-800 mb-2 tracking-widest">性别 <span class="text-earth-600">*</span></label>
+                        <select id="gender" required class="w-full appearance-none bg-transparent border-b-2 border-earth-300 px-2 py-2 text-earth-900 focus:outline-none focus:border-earth-600 transition-colors text-center font-serif cursor-pointer">
+                            <option value="" disabled selected class="text-earth-400">请选择</option>
+                            <option value="男" class="bg-earth-50">男</option>
+                            <option value="女" class="bg-earth-50">女</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-earth-800 mb-2 tracking-widest">出生时辰 <span class="text-earth-600">*</span></label>
+                        <select id="birth_hour" required class="w-full appearance-none bg-transparent border-b-2 border-earth-300 px-2 py-2 text-earth-900 focus:outline-none focus:border-earth-600 transition-colors text-center font-serif cursor-pointer">
+                            <option value="" disabled selected class="text-earth-400">请选择出生时辰</option>
+                            <option value="子时" class="bg-earth-50">子时(23:01-01:00)</option>
+                            <option value="丑时" class="bg-earth-50">丑时(01:01-03:00)</option>
+                            <option value="寅时" class="bg-earth-50">寅时(03:01-05:00)</option>
+                            <option value="卯时" class="bg-earth-50">卯时(05:01-07:00)</option>
+                            <option value="辰时" class="bg-earth-50">辰时(07:01-09:00)</option>
+                            <option value="巳时" class="bg-earth-50">巳时(09:01-11:00)</option>
+                            <option value="午时" class="bg-earth-50">午时(11:01-13:00)</option>
+                            <option value="未时" class="bg-earth-50">未时(13:01-15:00)</option>
+                            <option value="申时" class="bg-earth-50">申时(15:01-17:00)</option>
+                            <option value="酉时" class="bg-earth-50">酉时(17:01-19:00)</option>
+                            <option value="戌时" class="bg-earth-50">戌时(19:01-21:00)</option>
+                            <option value="亥时" class="bg-earth-50">亥时(21:01-23:00)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-earth-800 mb-2 tracking-widest">区号 <span class="text-earth-600">*</span></label>
+                        <input type="text" id="qu_number" required placeholder="如: +86" value="+86" class="w-full appearance-none bg-transparent border-b-2 border-earth-300 px-2 py-2 text-earth-900 focus:outline-none focus:border-earth-600 transition-colors text-center font-serif placeholder-earth-400">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-earth-800 mb-2 tracking-widest">联系电话 <span class="text-earth-600">*</span></label>
+                        <input type="text" id="phone_number" required minlength="5" pattern="\d{5,}" oninvalid="this.setCustomValidity('请输入至少5位纯数字')" oninput="this.setCustomValidity('')" placeholder="您的手机号" class="w-full appearance-none bg-transparent border-b-2 border-earth-300 px-2 py-2 text-earth-900 focus:outline-none focus:border-earth-600 transition-colors text-center font-serif placeholder-earth-400">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-earth-800 mb-2 tracking-widest">电子信箱 <span class="text-earth-400 text-xs font-normal">(选填)</span></label>
+                        <input type="email" id="email" placeholder="example@mail.com" class="w-full appearance-none bg-transparent border-b-2 border-earth-300 px-2 py-2 text-earth-900 focus:outline-none focus:border-earth-600 transition-colors text-center font-serif placeholder-earth-400">
+                    </div>
+                </div>
+                <div class="flex justify-center mt-10">
+                    <button type="submit" id="submitBtn" 
+                        class="group relative inline-flex items-center justify-center px-12 py-3 font-bold text-earth-50 bg-earth-800 border border-earth-900 rounded-sm overflow-hidden transition-all duration-300 hover:bg-earth-600 hover:text-white shadow-[4px_4px_0px_0px_rgba(140,74,59,1)] hover:shadow-[2px_2px_0px_0px_rgba(140,74,59,1)] hover:translate-x-[2px] hover:translate-y-[2px]">
+                        <span class="absolute w-0 h-0 transition-all duration-500 ease-out bg-white rounded-full group-hover:w-56 group-hover:h-56 opacity-10"></span>
+                        <span class="relative tracking-[0.3em] font-serif text-lg">推演命盘</span>
+                    </button>
+                </div>
+            </form>
+
+            <!-- Loading State -->
+            <div id="loadingState" class="hidden flex-col items-center justify-center py-20 relative">
+                <!-- 八卦旋转动画 -->
+                <div class="relative w-32 h-32 flex items-center justify-center">
+                    <div class="absolute inset-0 border-2 border-earth-300 rounded-full border-dashed animate-[spin_10s_linear_infinite]"></div>
+                    <div class="absolute inset-2 border border-earth-400 rounded-full animate-[spin_6s_linear_infinite_reverse]"></div>
+                    <div class="w-16 h-16 rounded-full border-2 border-earth-800 animate-spin relative overflow-hidden bg-earth-100 flex items-center justify-center">
+                        <div class="absolute w-full h-1/2 bg-earth-800 top-0 left-0"></div>
+                        <div class="w-8 h-8 rounded-full bg-earth-100 absolute top-1/2 left-0 transform -translate-y-1/2 flex items-center justify-center">
+                            <div class="w-2 h-2 rounded-full bg-earth-800"></div>
+                        </div>
+                        <div class="w-8 h-8 rounded-full bg-earth-800 absolute top-1/2 right-0 transform -translate-y-1/2 flex items-center justify-center">
+                            <div class="w-2 h-2 rounded-full bg-earth-100"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-8 flex flex-col items-center">
+                    <p class="text-earth-800 font-bold text-xl tracking-[0.3em] font-cursive animate-pulse">太极生两仪 · 两仪生四象</p>
+                    <p class="text-earth-600 text-sm mt-2 tracking-widest font-serif">天机推演中，请静候...</p>
+                </div>
+            </div>
+
+            <!-- Results Container -->
+            <div id="resultContainer" class="hidden space-y-12">
+                <!-- Radar Chart -->
+                <div class="relative py-8">
+                    <div class="flex items-center justify-center mb-8 relative z-10">
+                        <div class="h-px bg-earth-400 flex-1"></div>
+                        <h2 class="text-2xl font-bold text-earth-800 px-6 font-cursive tracking-widest">五行力量分布</h2>
+                        <div class="h-px bg-earth-400 flex-1"></div>
+                    </div>
+                    
+                    <!-- 图表容器，增加国风边框和背景图 -->
+                    <div class="chinese-border bg-white p-2 relative overflow-hidden h-96 sm:h-[500px]">
+                        <!-- 冥想人物底图 -->
+                        <div class="absolute inset-0 z-0 flex items-center justify-center opacity-60 pointer-events-none">
+                            <img src="./jimeng-2026-03-22-2511-删除图片中的文字、英文以及五角星、圆形等所有图形元素，保留底图中冥想的人物和原有....png" alt="Meditation Background" class="w-full h-full object-cover" />
+                        </div>
+                        <div id="radarChart" class="w-full h-full relative z-10"></div>
+                    </div>
+                </div>
+
+                <!-- Report Text -->
+                <div class="relative py-8">
+                    <div class="flex items-center justify-center mb-8">
+                        <div class="h-px bg-earth-400 flex-1"></div>
+                        <h2 class="text-2xl font-bold text-earth-800 px-6 font-cursive tracking-widest">命理深度解析</h2>
+                        <div class="h-px bg-earth-400 flex-1"></div>
+                    </div>
+                    <div class="chinese-border bg-white bg-opacity-70 p-2">
+                        <div id="reportContent" class="markdown-body text-earth-900 p-6 sm:p-8"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize ECharts instance
+        let chartInstance = null;
+
+        function initChart(weights) {
+            const chartDom = document.getElementById('radarChart');
+            
+            // Dispose previous instance if exists to prevent memory leaks or rendering issues
+            if (chartInstance) {
+                chartInstance.dispose();
+            }
+            
+            chartInstance = echarts.init(chartDom);
+
+            const w = weights || { '金': 0, '木': 0, '水': 0, '火': 0, '土': 0 };
+            const total = (w['金'] || 0) + (w['木'] || 0) + (w['水'] || 0) + (w['火'] || 0) + (w['土'] || 0) || 1; // avoid /0
+            const getP = (v) => Math.round(((v || 0) / total) * 100) + '%';
+
+            // Coordinates for pentagon (radius adapt to screen)
+            const width = chartDom.clientWidth;
+            const height = chartDom.clientHeight;
+            const minDim = Math.min(width, height);
+            const R = minDim * 0.35; // 动态半径
+            const symbolSize = Math.max(50, minDim * 0.15); // 动态节点大小
+
+            const nodes = [
+                {
+                    name: '火', x: 0, y: -R,
+                    value: w['火'], percent: getP(w['火']),
+                    itemStyle: { color: '#fff0f0', borderColor: '#ffccc7', borderWidth: 2 },
+                    label: { color: '#cf1322' }
+                },
+                {
+                    name: '土', x: R * Math.sin(72 * Math.PI / 180), y: -R * Math.cos(72 * Math.PI / 180),
+                    value: w['土'], percent: getP(w['土']),
+                    itemStyle: { color: '#fff2e8', borderColor: '#ffd8bf', borderWidth: 2 },
+                    label: { color: '#d46b08' }
+                },
+                {
+                    name: '金', x: R * Math.sin(144 * Math.PI / 180), y: -R * Math.cos(144 * Math.PI / 180),
+                    value: w['金'], percent: getP(w['金']),
+                    itemStyle: { color: '#fffbe6', borderColor: '#ffe58f', borderWidth: 2 },
+                    label: { color: '#d48806' }
+                },
+                {
+                    name: '水', x: -R * Math.sin(144 * Math.PI / 180), y: -R * Math.cos(144 * Math.PI / 180),
+                    value: w['水'], percent: getP(w['水']),
+                    itemStyle: { color: '#e6f4ff', borderColor: '#91caff', borderWidth: 2 },
+                    label: { color: '#0958d9' }
+                },
+                {
+                    name: '木', x: -R * Math.sin(72 * Math.PI / 180), y: -R * Math.cos(72 * Math.PI / 180),
+                    value: w['木'], percent: getP(w['木']),
+                    itemStyle: { color: '#f6ffed', borderColor: '#b7eb8f', borderWidth: 2 },
+                    label: { color: '#389e0d' }
+                }
+            ];
+
+            const option = {
+                animationDurationUpdate: 1500,
+                animationEasingUpdate: 'quinticInOut',
+                tooltip: {
+                    formatter: function(params) {
+                        if (params.dataType === 'node') {
+                            return `<div style="font-family: 'Noto Serif SC', serif; font-weight:bold;margin-bottom:5px;border-bottom:1px solid #d4c4b7;padding-bottom:5px;">五行气数</div>
+                                    ${params.data.name}: ${params.data.value} (${params.data.percent})`;
+                        }
+                        return `<div style="font-family: 'Noto Serif SC', serif;">${params.data.source} ${params.data.value} ${params.data.target}</div>`;
+                    },
+                    backgroundColor: 'rgba(244, 240, 230, 0.95)', // 宣纸色背景
+                    borderColor: '#8c4a3b', // 朱砂红边框
+                    borderWidth: 1,
+                    textStyle: { color: '#3b2e2a' } // 深墨色文字
+                },
+                graphic: {
+                    elements: [
+                        {
+                            type: 'circle',
+                            left: 'center',
+                            top: 'center',
+                            shape: { r: R * 1.3 }, // 背景圆自适应半径
+                            style: {
+                                fill: 'rgba(212, 196, 183, 0.1)', // 浅色底
+                                stroke: '#d4c4b7', // 古典边框色
+                                lineWidth: 1,
+                                lineDash: [5, 5]
+                            },
+                            z: -1
+                        }
+                    ]
+                },
+                series: [
+                    {
+                        type: 'graph',
+                        layout: 'none',
+                        data: nodes,
+                        symbolSize: symbolSize, // 自适应节点大小
+                        roam: false,
+                        label: {
+                            show: true,
+                            position: 'inside',
+                            formatter: function(params) {
+                                return `{title|${params.data.name}}\n{percent|${params.data.percent}}`;
+                            },
+                            rich: {
+                                title: { fontSize: 20, fontFamily: '"Ma Shan Zheng", cursive', fontWeight: 'bold', lineHeight: 22, color: '#3b2e2a' },
+                                percent: { fontSize: 12, color: '#5c4d47', fontFamily: '"Noto Serif SC", serif' }
+                            }
+                        },
+                        edgeSymbol: ['none', 'arrow'],
+                        edgeSymbolSize: [0, 8],
+                        edgeLabel: {
+                            show: true,
+                            fontSize: 12,
+                            fontFamily: '"Noto Serif SC", serif',
+                            color: '#8c4a3b', // 朱砂红
+                            formatter: '{c}',
+                            backgroundColor: 'transparent',
+                            padding: [0, 0],
+                        },
+                        lineStyle: {
+                            color: '#b59c8a', // 连线颜色
+                            width: 1.5,
+                            curveness: 0
+                        },
+                        links: [
+                        // 生 (相生) - outer circle
+                        { source: '木', target: '火', value: '木生火', lineStyle: { curveness: 0.2, color: '#8c4a3b', type: 'dashed' } }, // 火红
+                        { source: '火', target: '土', value: '火生土', lineStyle: { curveness: 0.2, color: '#947a66', type: 'dashed' } }, // 土黄
+                        { source: '土', target: '金', value: '土生金', lineStyle: { curveness: 0.2, color: '#d4c4b7', type: 'dashed' } }, // 金色(浅)
+                        { source: '金', target: '水', value: '金生水', lineStyle: { curveness: 0.2, color: '#5c4d47', type: 'dashed' } }, // 水黑
+                        { source: '水', target: '木', value: '水生木', lineStyle: { curveness: 0.2, color: '#733b2e', type: 'dashed' } }, // 木青(偏暗)
+                        // 克 (相克) - inner star
+                        { source: '木', target: '土', value: '木克土', lineStyle: { curveness: 0, color: '#3b2e2a', opacity: 0.6 } },
+                        { source: '土', target: '水', value: '土克水', lineStyle: { curveness: 0, color: '#3b2e2a', opacity: 0.6 } },
+                        { source: '水', target: '火', value: '水克火', lineStyle: { curveness: 0, color: '#3b2e2a', opacity: 0.6 } },
+                        { source: '火', target: '金', value: '火克金', lineStyle: { curveness: 0, color: '#3b2e2a', opacity: 0.6 } },
+                        { source: '金', target: '木', value: '金克木', lineStyle: { curveness: 0, color: '#3b2e2a', opacity: 0.6 } }
+                        ]
+                    }
+                ]
+            };
+
+            chartInstance.setOption(option);
+        }
+
+        // Handle window resize
+        window.addEventListener('resize', function() {
+            if (chartInstance) {
+                chartInstance.resize();
+            }
+        });
+
+        async function callDifyAPI(inputsParams) {
+            const url = '/api/chat'; // 使用 Cloudflare Pages Function 代理
+            const headers = {
+                'Content-Type': 'application/json'
+                // Authorization 头由 Cloudflare Pages Function 在后端添加，前端不再暴露 API Key
+            };
+            const body = JSON.stringify({
+                "inputs": inputsParams,
+                "query": "生成报告",
+                "response_mode": "blocking",
+                "user": "web-user"
+            });
+
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: headers,
+                body: body
+            });
+
+            if (!response.ok) {
+                throw new Error(`API error: ${response.status}`);
+            }
+
+            const result = await response.json();
+            
+            // Check if answer exists and can be parsed
+            if (!result.answer) {
+                throw new Error('No answer in response');
+            }
+            
+            return JSON.parse(result.answer);
+        }
+
+        function getMockData() {
+            return {
+                weights: {
+                    "金": 13,
+                    "木": 23,
+                    "水": 29,
+                    "火": 3,
+                    "土": 31
+                },
+                report_data: {
+                    report_text: "# 一、【五行查询结果初步分析】\n\n🧿**简洁版八字分析摘要**：\n\n1. 五行能量分布：\n>水 > 土 > 木 > 金 > 火（最弱/需补）\n\n2. 缺失五行建议：\n本命局中最需补充的是**【火】**能量。缺火可能导致情绪低沉、活力不足。建议通过佩戴【火属性】的水晶以提升运势。\n\n✅ **水晶推荐建议**：\n\n1. **九紫离火 · 女性魅力觉醒｜紫水晶手串** \n   - 五行属性：火  \n   - 功效：紫水晶能够帮助补充命局中缺失的火元素，驱散负面情绪。\n   - ![](\"https://images.unsplash.com/photo-1615114814213-a245ffc79e9a?auto=format&fit=crop&q=80&w=400&h=200\")\n\n# 二、【水晶推荐详解】\n\n（此处省略更多内容...）\n\n# 三、总结\n\n水晶不仅是美丽的饰品，更是心灵的疗愈工具。"
+                }
+
+            };
+        }
+
+        async function generateReport() {
+            const phoneNumber = document.getElementById('phone_number').value.trim();
+            
+            // 校验：必须只包含数字，且长度至少为5（大于等于5，即不能少于5个数字，你前面说大于5位，这里设定为至少5位。如果必须大于5，就改成 > 5 或者 >= 6。这里按照你的最新要求"5个及以上的阿拉伯数字"即 >= 5）
+            // 采用正则匹配：只允许 0-9，且至少5位
+            const phoneRegex = /^\d{5,}$/;
+            if (!phoneRegex.test(phoneNumber)) {
+                alert('请输入有效的联系电话（必须全为阿拉伯数字，且至少5位数）');
+                return;
+            }
+
+            const inputsParams = {
+                bir_year: document.getElementById('bir_year').value.trim(),
+                bir_month: document.getElementById('bir_month').value.trim(),
+                bir_day: document.getElementById('bir_day').value.trim(),
+                gender: document.getElementById('gender').value,
+                birth_hour: document.getElementById('birth_hour').value, // 现在是下拉框
+                qu_number: document.getElementById('qu_number').value.trim(),
+                phone_number: phoneNumber,
+                email: document.getElementById('email').value.trim() || ""
+            };
+
+            // Hide results, show loading
+            document.getElementById('resultContainer').classList.add('hidden');
+            const loadingState = document.getElementById('loadingState');
+            loadingState.classList.remove('hidden');
+            loadingState.classList.add('flex');
+            
+            // Disable button
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.disabled = true;
+            submitBtn.classList.add('opacity-70', 'cursor-not-allowed');
+
+            try {
+                // Show results FIRST so ECharts can calculate correct dimensions
+                document.getElementById('resultContainer').classList.remove('hidden');
+
+                // Try to fetch real data
+                const data = await callDifyAPI(inputsParams);
+
+                // Verify data structure
+                if (data && data.weights && data.report_data && data.report_data.report_text) {
+                    // Render chart
+                    initChart(data.weights);
+                    
+                    // Render markdown
+                    // 替换 Markdown 中的网络图片为您本地的图片 (如果需要的话，也可以保持网络图片)
+                    let mdText = data.report_data.report_text;
+                    const reportHtml = marked.parse(mdText);
+                    document.getElementById('reportContent').innerHTML = reportHtml;
+                    
+                    // Show results
+                    // document.getElementById('resultContainer').classList.remove('hidden'); // Already shown above
+                    
+                    // Scroll to results
+                    setTimeout(() => {
+                        document.getElementById('resultContainer').scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }, 100);
+                } else {
+                    throw new Error('API 返回的数据格式不正确');
+                }
+            } catch (error) {
+                console.error('生成报告时发生未知错误:', error);
+                alert(`生成报告时发生错误：${error.message}\n请检查您的网络连接或稍后重试。`);
+            } finally {
+                // Hide loading, enable button
+                loadingState.classList.add('hidden');
+                loadingState.classList.remove('flex');
+                submitBtn.disabled = false;
+                submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
+            }
+        }
+    </script>
+</body>
+</html>
