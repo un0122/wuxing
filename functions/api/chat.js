@@ -53,7 +53,12 @@ export async function onRequest(context) {
         // 在此处携带鉴权头，防止前端泄露
         "Authorization": `Bearer ${apiKey}`
       },
-      body: JSON.stringify(requestBody)
+      body: JSON.stringify({
+        "inputs": requestBody.inputs,
+        "query": requestBody.query || "生成报告",
+        "response_mode": requestBody.response_mode || "blocking",
+        "user": requestBody.user || "web-user"
+      })
     });
 
     // 将 Dify 返回的结果透传给前端
