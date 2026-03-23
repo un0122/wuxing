@@ -177,18 +177,18 @@
                         <label class="block text-sm font-bold text-earth-800 mb-2 tracking-widest">出生时辰 <span class="text-earth-600">*</span></label>
                         <select id="birth_hour" required class="w-full appearance-none bg-transparent border-b-2 border-earth-300 px-2 py-2 text-earth-900 focus:outline-none focus:border-earth-600 transition-colors text-center font-serif cursor-pointer">
                             <option value="" disabled selected class="text-earth-400">请选择出生时辰</option>
-                            <option value="子时" class="bg-earth-50">子时(23:01-01:00)</option>
-                            <option value="丑时" class="bg-earth-50">丑时(01:01-03:00)</option>
-                            <option value="寅时" class="bg-earth-50">寅时(03:01-05:00)</option>
-                            <option value="卯时" class="bg-earth-50">卯时(05:01-07:00)</option>
-                            <option value="辰时" class="bg-earth-50">辰时(07:01-09:00)</option>
-                            <option value="巳时" class="bg-earth-50">巳时(09:01-11:00)</option>
-                            <option value="午时" class="bg-earth-50">午时(11:01-13:00)</option>
-                            <option value="未时" class="bg-earth-50">未时(13:01-15:00)</option>
-                            <option value="申时" class="bg-earth-50">申时(15:01-17:00)</option>
-                            <option value="酉时" class="bg-earth-50">酉时(17:01-19:00)</option>
-                            <option value="戌时" class="bg-earth-50">戌时(19:01-21:00)</option>
-                            <option value="亥时" class="bg-earth-50">亥时(21:01-23:00)</option>
+                            <option value="0" class="bg-earth-50">子时(23:01-01:00)</option>
+                            <option value="2" class="bg-earth-50">丑时(01:01-03:00)</option>
+                            <option value="4" class="bg-earth-50">寅时(03:01-05:00)</option>
+                            <option value="6" class="bg-earth-50">卯时(05:01-07:00)</option>
+                            <option value="8" class="bg-earth-50">辰时(07:01-09:00)</option>
+                            <option value="10" class="bg-earth-50">巳时(09:01-11:00)</option>
+                            <option value="12" class="bg-earth-50">午时(11:01-13:00)</option>
+                            <option value="14" class="bg-earth-50">未时(13:01-15:00)</option>
+                            <option value="16" class="bg-earth-50">申时(15:01-17:00)</option>
+                            <option value="18" class="bg-earth-50">酉时(17:01-19:00)</option>
+                            <option value="20" class="bg-earth-50">戌时(19:01-21:00)</option>
+                            <option value="22" class="bg-earth-50">亥时(21:01-23:00)</option>
                         </select>
                     </div>
                     <div>
@@ -443,7 +443,18 @@
             });
 
             if (!response.ok) {
-                throw new Error(`API error: ${response.status}`);
+                // 尝试解析后端的详细报错信息
+                let errorMsg = `API error: ${response.status}`;
+                try {
+                    const errorData = await response.json();
+                    console.error("后端详细报错:", errorData);
+                    if (errorData.details) {
+                        errorMsg += `\n详情: ${errorData.details}`;
+                    }
+                } catch (e) {
+                    console.error("无法解析报错信息");
+                }
+                throw new Error(errorMsg);
             }
 
             const result = await response.json();
@@ -482,13 +493,15 @@
                 alert('请输入有效的联系电话（必须全为阿拉伯数字，且至少5位数）');
                 return;
             }
+            
+
 
             const inputsParams = {
-                bir_year: document.getElementById('bir_year').value.trim(),
-                bir_month: document.getElementById('bir_month').value.trim(),
-                bir_day: document.getElementById('bir_day').value.trim(),
-                gender: document.getElementById('gender').value,
-                birth_hour: document.getElementById('birth_hour').value, // 现在是下拉框
+                bir_year: Number(document.getElementById('bir_year').value.trim()),
+                bir_month: Number(document.getElementById('bir_month').value.trim()),
+                bir_day: Number(document.getElementById('bir_day').value.trim()),
+                gender: document.getElementById('gender').value, // 性别保留文字
+                birth_hour: Number(document.getElementById('birth_hour').value), // 强制转换为中位数数字
                 qu_number: document.getElementById('qu_number').value.trim(),
                 phone_number: phoneNumber,
                 email: document.getElementById('email').value.trim() || ""
