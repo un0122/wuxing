@@ -27,7 +27,18 @@ export async function onRequest(context) {
 
   try {
     // 解析前端发送的 JSON 数据
-    const requestBody = await context.request.json();
+    let requestBody;
+    try {
+      requestBody = await context.request.json();
+    } catch (e) {
+      return new Response(JSON.stringify({ error: "Invalid JSON in request body" }), {
+        status: 400,
+        headers: { 
+          "Content-Type": "application/json",
+          ...corsHeaders
+        }
+      });
+    }
     
     // 目标 Dify API 的地址
     const difyUrl = "http://ai.morecollege.cn/v1/chat-messages";
@@ -46,6 +57,7 @@ export async function onRequest(context) {
     }
 
     // 向真实的 Dify API 发送请求
+    // 严格按照 Dify 要求的格式重组数据
     const difyRequestBody = {
       "inputs": requestBody.inputs || requestBody,
       "query": requestBody.query || "生成报告",
@@ -62,6 +74,22 @@ export async function onRequest(context) {
       },
       body: JSON.stringify(difyRequestBody)
     });
+
+    // 如果 Dify 返回的不是 200，说明参数依然有问题，我们把 Dify 的原始报错信息透传出来
+    if (!response.ok) {
+        const errorText = await response.text();
+        return new Response(JSON.stringify({ 
+            error: `Dify API Error: ${response.status}`, 
+            details: errorText,
+            sentBody: difyRequestBody // 把我们发给 Dify 的内容也打印出来，方便调试
+        }), {
+            status: response.status,
+            headers: {
+              "Content-Type": "application/json",
+              ...corsHeaders
+            }
+        });
+    }
 
     // 将 Dify 返回的结果透传给前端
     const data = await response.json();
